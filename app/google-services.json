@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "207237128820",
+    "project_id": "ecommercekotlinandroid-2b6d2",
+    "storage_bucket": "ecommercekotlinandroid-2b6d2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:207237128820:android:233eeeb96872ea39472721",
+        "android_client_info": {
+          "package_name": "com.aybarsacar.ecommercefirebase"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "207237128820-mkd2enr0oa567r60v8egt3tmcedtcrh1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.aybarsacar.ecommercefirebase",
+            "certificate_hash": "22783774446bf41012b8798c169e1ce078a1846e"
+          }
+        },
+        {
+          "client_id": "207237128820-cam3bveqoroo5n22cnm4dggsgqrit7bp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAxImAHprZFpWpDqYL0IoAN-ZFG1tBMDYg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "207237128820-cam3bveqoroo5n22cnm4dggsgqrit7bp.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
