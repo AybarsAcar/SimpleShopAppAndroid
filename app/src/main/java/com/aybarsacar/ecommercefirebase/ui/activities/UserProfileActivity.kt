@@ -4,14 +4,13 @@ import android.Manifest
 import android.app.Activity
 import android.app.AlertDialog
 import android.app.Dialog
-import android.content.ActivityNotFoundException
-import android.content.Context
-import android.content.ContextWrapper
-import android.content.Intent
+import android.content.*
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.provider.MediaStore
 import android.provider.Settings
 import android.text.TextUtils
@@ -28,8 +27,7 @@ import com.aybarsacar.ecommercefirebase.models.User
 import com.aybarsacar.ecommercefirebase.utils.helpers.Constants
 import com.aybarsacar.ecommercefirebase.utils.helpers.GlideLoader
 import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
+import java.io.OutputStream
 import java.util.*
 import kotlin.collections.HashMap
 
@@ -46,7 +44,8 @@ class UserProfileActivity : BaseActivity(), View.OnClickListener {
 
   // class variables
   private var _userDetails = User() // currently logged in user
-  private var _imagePath = ""
+  private var _selectedImageUri: Uri? = null
+  private var _userProfileImageUrl: String = ""
 
   // image permissions
   val _getImage = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -58,12 +57,16 @@ class UserProfileActivity : BaseActivity(), View.OnClickListener {
 
         if (selectedImageUri != null) {
           GlideLoader(this).loadUserImageAsUri(selectedImageUri, _binding.ivUserPhoto)
-          _imagePath = selectedImageUri.toString()
+
+          // cache so the image can be saved to the db on submit
+          _selectedImageUri = selectedImageUri
         } else {
           result.data?.let {
             val bitmap: Bitmap = result.data?.extras?.get("data") as Bitmap
             GlideLoader(this).loadUserImageAsBitmap(bitmap, _binding.ivUserPhoto)
-            _imagePath = saveImageToInternalStorage(bitmap)
+
+            // cache so the image can be saved to the db on submit
+            _selectedImageUri = saveImageToGallery(bitmap)
           }
         }
 
@@ -73,7 +76,7 @@ class UserProfileActivity : BaseActivity(), View.OnClickListener {
       }
 
     } else if (result.resultCode == Activity.RESULT_CANCELED) {
-      Log.e("Cancelled", "User cancelled image celection")
+      Log.e("Cancelled", "User cancelled image selection")
     }
   }
 
@@ -192,27 +195,39 @@ class UserProfileActivity : BaseActivity(), View.OnClickListener {
     }
   }
 
-  private fun saveImageToInternalStorage(bitmap: Bitmap): String {
+  private fun saveImageToGallery(bitmap: Bitmap): Uri? {
+    val fos: OutputStream
 
-    // give our application context to the image so the user can filter
-    val wrapper = ContextWrapper(applicationContext)
-
-    var file = wrapper.getDir(IMAGE_DIRECTORY, Context.MODE_PRIVATE)
-    file = File(file, "${UUID.randomUUID()}.jpg")
-
-    val stream: FileOutputStream
     try {
-      stream = FileOutputStream(file)
-      bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
-      stream.flush()
-      stream.close()
-    } catch (e: IOException) {
-      e.printStackTrace()
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        val resolver = contentResolver
+        val contentValues = ContentValues()
+        contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, "Image_" + ".jpg")
+        contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpg")
+        contentValues.put(
+          MediaStore.MediaColumns.RELATIVE_PATH,
+          Environment.DIRECTORY_PICTURES + File.separator + IMAGE_DIRECTORY
+        )
+
+        val imageUri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+
+        fos = resolver.openOutputStream(Objects.requireNonNull(imageUri!!))!!
+
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos)
+
+        Objects.requireNonNull<OutputStream>(fos)
+
+        Toast.makeText(this, "Image Saved", Toast.LENGTH_SHORT).show()
+
+        return imageUri
+      }
+    } catch (e: Exception) {
+      Toast.makeText(this, "Problam saving the image", Toast.LENGTH_SHORT).show()
     }
 
-
-    return file.absolutePath
+    return null
   }
+
 
   fun onUserProfileUpdatedSuccess() {
     hideLoadingProgressDialog()
@@ -234,28 +249,56 @@ class UserProfileActivity : BaseActivity(), View.OnClickListener {
 
         R.id.btn_save -> {
           if (validateUserProfileDetails()) {
-
-            // fields we will be sending while updating the user details
-            val userHashMap = HashMap<String, Any>()
-
-            val mobileNumber = _binding.etMobileNumber.text.toString().trim { it <= ' ' }
-
-            val gender = if (_binding.rbMale.isChecked) {
-              Constants.MALE
-            } else {
-              Constants.FEMALE
-            }
-
-            userHashMap[Constants.MOBILE] = mobileNumber.toLong()
-            userHashMap[Constants.GENDER] = gender
-
             displayLoadingProgressDialog()
 
-            _fireStoreService.updateUserDetails(this, userHashMap)
+            if (_selectedImageUri != null) {
+              _fireStoreService.uploadProfileImageToCloudStorage(this, _selectedImageUri)
+            } else {
+              updateUserProfileDetails()
+            }
           }
           return
         }
       }
     }
+  }
+
+
+  private fun updateUserProfileDetails() {
+    // fields we will be sending while updating the user details
+    val userHashMap = HashMap<String, Any>()
+
+    val mobileNumber = _binding.etMobileNumber.text.toString().trim { it <= ' ' }
+
+    val gender = if (_binding.rbMale.isChecked) {
+      Constants.MALE
+    } else {
+      Constants.FEMALE
+    }
+
+    if (_userProfileImageUrl.isNotEmpty()) {
+      userHashMap[Constants.IMAGE] = _userProfileImageUrl
+    }
+
+    userHashMap[Constants.MOBILE] = mobileNumber.toLong()
+    userHashMap[Constants.GENDER] = gender
+    userHashMap[Constants.PROFILE_COMPLETED] = 1
+
+    _fireStoreService.updateUserDetails(this, userHashMap)
+  }
+
+
+  fun onImageUploadSuccess(imageUrl: String) {
+    // cache the url from the firebase in the class which will be saved on submit
+    _userProfileImageUrl = imageUrl
+
+    // then update the userprofile details
+    updateUserProfileDetails()
+  }
+
+  fun onImageUploadFailure() {
+    hideLoadingProgressDialog()
+
+    displaySnackBar("Error uploading image", true)
   }
 }

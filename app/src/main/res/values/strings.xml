@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">ECommerceFirebase</string>
+    <string name="app_name">Ajeeb</string>
 
     <string name="content_description">image</string>
     <string name="title_login">LOGIN</string>
@@ -23,4 +23,8 @@
     <string name="login"><u>Login</u></string>
 
     <string name="please_wait">Please Wait&#8230;</string>
+    <string name="title_activity_dashboard">DashboardActivity</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
 </resources>

@@ -3,6 +3,7 @@ package com.aybarsacar.ecommercefirebase.firestore
 import android.app.Activity
 import android.content.Context
 import android.content.SharedPreferences
+import android.net.Uri
 import android.util.Log
 import com.aybarsacar.ecommercefirebase.models.User
 import com.aybarsacar.ecommercefirebase.ui.activities.LoginActivity
@@ -12,6 +13,8 @@ import com.aybarsacar.ecommercefirebase.utils.helpers.Constants
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
 
 
 /**
@@ -119,6 +122,51 @@ class FirestoreService {
         }
 
         Log.e(activity.javaClass.simpleName, "Error updating the user details", it)
+      }
+  }
+
+
+  /**
+   * uploads the image to the FirebaseStorage
+   * user profile image is saved with the name of their id
+   */
+  fun uploadProfileImageToCloudStorage(activity: Activity, imageFileUri: Uri?) {
+
+    val sRef: StorageReference = FirebaseStorage.getInstance().reference.child(
+      // each user is allowed to have a single Profile Image
+      Constants.USER_PROFILE_IMAGE + getCurrentUserId() + "." + Constants.getFileExtension(
+        activity,
+        imageFileUri
+      )
+    )
+
+    sRef.putFile(imageFileUri!!)
+      .addOnSuccessListener { taskSnapshot ->
+
+        Log.e("Firebase Image URL", taskSnapshot.metadata!!.reference!!.downloadUrl.toString())
+
+        // get the downloadable url from the task snapshot
+        taskSnapshot.metadata!!.reference!!.downloadUrl
+          .addOnSuccessListener {
+            Log.e("Downloadable Image Url", it.toString())
+
+            when (activity) {
+              is UserProfileActivity -> {
+                activity.onImageUploadSuccess(it.toString())
+              }
+            }
+          }
+
+      }.addOnFailureListener {
+
+        when (activity) {
+          is UserProfileActivity -> {
+            activity.onImageUploadFailure()
+          }
+        }
+
+        Log.e(activity.javaClass.simpleName, it.message, it)
+
       }
   }
 }
