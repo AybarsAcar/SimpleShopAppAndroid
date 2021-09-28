@@ -5,6 +5,9 @@
       <map>
         <entry key="../../../../layout/custom_preview.xml" value="0.5458333333333333" />
         <entry key="app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.4537037037037037" />
+        <entry key="app/src/main/res/drawable-v24/ic_vector_dashboard.xml" value="0.44814814814814813" />
+        <entry key="app/src/main/res/drawable-v24/ic_vector_orders.xml" value="0.44814814814814813" />
+        <entry key="app/src/main/res/drawable-v24/ic_vector_products.xml" value="0.44814814814814813" />
         <entry key="app/src/main/res/drawable/button_background.xml" value="0.4537037037037037" />
         <entry key="app/src/main/res/drawable/dialog_background.xml" value="0.4537037037037037" />
         <entry key="app/src/main/res/drawable/drawable_gender_tab_selector.xml" value="0.4537037037037037" />
@@ -13,18 +16,26 @@
         <entry key="app/src/main/res/drawable/ic_baseline_arrow_back_ios_new_24.xml" value="0.4537037037037037" />
         <entry key="app/src/main/res/drawable/ic_baseline_camera_alt_24.xml" value="0.4537037037037037" />
         <entry key="app/src/main/res/drawable/ic_baseline_photo_library_24.xml" value="0.4537037037037037" />
+        <entry key="app/src/main/res/drawable/ic_dashboard_black_24dp.xml" value="0.44814814814814813" />
         <entry key="app/src/main/res/drawable/ic_launcher_background.xml" value="0.4537037037037037" />
+        <entry key="app/src/main/res/drawable/item_grey_border_background.xml" value="0.5380208333333333" />
         <entry key="app/src/main/res/drawable/menu_gradient_color_background.xml" value="0.5380208333333333" />
         <entry key="app/src/main/res/layout-v23/activity_login.xml" value="0.5192708333333333" />
+        <entry key="app/src/main/res/layout-v23/activity_settings.xml" value="0.3098958333333333" />
+        <entry key="app/src/main/res/layout/activity_add_product.xml" value="0.2921195652173913" />
         <entry key="app/src/main/res/layout/activity_dashboard.xml" value="0.29846014492753625" />
         <entry key="app/src/main/res/layout/activity_forgot_password.xml" value="0.30434782608695654" />
         <entry key="app/src/main/res/layout/activity_login.xml" value="0.34814814814814815" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.30434782608695654" />
         <entry key="app/src/main/res/layout/activity_register.xml" value="0.30434782608695654" />
+        <entry key="app/src/main/res/layout/activity_settings.xml" value="0.29846014492753625" />
         <entry key="app/src/main/res/layout/activity_splash.xml" value="0.30434782608695654" />
         <entry key="app/src/main/res/layout/activity_user_profile.xml" value="0.30434782608695654" />
         <entry key="app/src/main/res/layout/dialog_custom_image_selection.xml" value="0.30434782608695654" />
         <entry key="app/src/main/res/layout/dialog_progress.xml" value="0.30434782608695654" />
+        <entry key="app/src/main/res/menu/add_product_menu.xml" value="0.521875" />
+        <entry key="app/src/main/res/menu/bottom_nav_menu.xml" value="0.521875" />
+        <entry key="app/src/main/res/menu/dashboard_menu.xml" value="0.521875" />
         <entry key="app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.32395833333333335" />
         <entry key="app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.32395833333333335" />
       </map>

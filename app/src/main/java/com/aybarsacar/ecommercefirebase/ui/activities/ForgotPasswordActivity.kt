@@ -79,7 +79,7 @@ class ForgotPasswordActivity : BaseActivity() {
     // change the colour of our vector asset on runtime
     val drawable = ContextCompat.getDrawable(this, R.drawable.ic_baseline_arrow_back_ios_new_24)
     val wrappedDrawable = DrawableCompat.wrap(drawable!!)
-    DrawableCompat.setTint(wrappedDrawable, ContextCompat.getColor(this, R.color.white))
+    DrawableCompat.setTint(wrappedDrawable, ContextCompat.getColor(this, R.color.app_white))
 
 
     if (actionBar != null) {

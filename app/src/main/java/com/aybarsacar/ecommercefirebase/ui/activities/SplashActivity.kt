@@ -9,6 +9,7 @@ import android.view.WindowInsets
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import com.aybarsacar.ecommercefirebase.databinding.ActivitySplashBinding
+import com.google.firebase.auth.FirebaseAuth
 
 
 class SplashActivity : AppCompatActivity() {
@@ -36,7 +37,15 @@ class SplashActivity : AppCompatActivity() {
     }
 
     Handler(Looper.getMainLooper()).postDelayed({
-      startActivity(Intent(this@SplashActivity, DashboardActivity::class.java))
+
+      val currentUser = FirebaseAuth.getInstance().currentUser
+
+      if (currentUser == null) {
+        startActivity(Intent(this@SplashActivity, LoginActivity::class.java))
+      } else {
+        startActivity(Intent(this@SplashActivity, DashboardActivity::class.java))
+      }
+
       finish()
     }, 1000)
   }

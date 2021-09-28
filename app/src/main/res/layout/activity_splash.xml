@@ -28,7 +28,7 @@
         android:layout_width="167dp"
         android:layout_height="134dp"
         android:contentDescription="App Logo"
-        android:src="@drawable/app_logo"
+        android:src="@drawable/app_logo_no_bg"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 

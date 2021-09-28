@@ -8,6 +8,7 @@ import android.util.Log
 import com.aybarsacar.ecommercefirebase.models.User
 import com.aybarsacar.ecommercefirebase.ui.activities.LoginActivity
 import com.aybarsacar.ecommercefirebase.ui.activities.RegisterActivity
+import com.aybarsacar.ecommercefirebase.ui.activities.SettingsActivity
 import com.aybarsacar.ecommercefirebase.ui.activities.UserProfileActivity
 import com.aybarsacar.ecommercefirebase.utils.helpers.Constants
 import com.google.firebase.auth.FirebaseAuth
@@ -70,6 +71,10 @@ class FirestoreService {
           is LoginActivity -> {
             activity.userLoggedInSuccess(user)
           }
+
+          is SettingsActivity -> {
+            activity.onUserDetailsSuccess(user)
+          }
         }
       }
       .addOnFailureListener {
@@ -77,6 +82,12 @@ class FirestoreService {
         when (activity) {
 
           is LoginActivity -> {
+            Log.e(activity.javaClass.simpleName, "Error fetching user details", it)
+          }
+
+          is SettingsActivity -> {
+            activity.onUserDetailsFailure()
+            Log.e(activity.javaClass.simpleName, "Error fetching user details", it)
           }
         }
       }

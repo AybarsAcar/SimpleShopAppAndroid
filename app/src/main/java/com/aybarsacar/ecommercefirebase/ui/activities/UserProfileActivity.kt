@@ -19,6 +19,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.DrawableCompat
 import com.aybarsacar.ecommercefirebase.R
 import com.aybarsacar.ecommercefirebase.databinding.ActivityUserProfileBinding
 import com.aybarsacar.ecommercefirebase.databinding.DialogCustomImageSelectionBinding
@@ -95,10 +96,27 @@ class UserProfileActivity : BaseActivity(), View.OnClickListener {
       _userDetails = intent.getParcelableExtra<User>(Constants.LOGGED_IN_USER_DETAILS)!!
     }
 
-    _binding.etFirstName.isEnabled = false
-    _binding.etLastName.isEnabled = false
-    _binding.etEmail.isEnabled = false
+    if (_userDetails.profileCompleted == 0) {
+      // user just signed up and logged in for the first time
+      _binding.tvTitle.text = "Complete Profile"
 
+      _binding.etFirstName.isEnabled = false
+      _binding.etLastName.isEnabled = false
+    } else {
+      // user editing profile
+      setupActionBar()
+      _binding.tvTitle.text = "Edit Profile"
+
+      // load the user image
+      GlideLoader(this@UserProfileActivity).loadUserImageAsUri(_userDetails.image, _binding.ivUserPhoto)
+
+      _binding.etMobileNumber.setText(_userDetails.mobile.toString())
+      _binding.rbMale.isChecked = _userDetails.gender == Constants.MALE
+      _binding.rbFemale.isChecked = _userDetails.gender == Constants.FEMALE
+    }
+
+
+    _binding.etEmail.isEnabled = false
     // populate the form
     _binding.etFirstName.setText(_userDetails.firstName)
     _binding.etLastName.setText(_userDetails.lastName)
@@ -222,7 +240,7 @@ class UserProfileActivity : BaseActivity(), View.OnClickListener {
         return imageUri
       }
     } catch (e: Exception) {
-      Toast.makeText(this, "Problam saving the image", Toast.LENGTH_SHORT).show()
+      Toast.makeText(this, "Problem saving the image", Toast.LENGTH_SHORT).show()
     }
 
     return null
@@ -234,7 +252,7 @@ class UserProfileActivity : BaseActivity(), View.OnClickListener {
     Toast.makeText(this, "Profile Updated Successfully", Toast.LENGTH_SHORT).show()
 
     // send the user to the main activity
-    startActivity(Intent(this@UserProfileActivity, MainActivity::class.java))
+    startActivity(Intent(this@UserProfileActivity, DashboardActivity::class.java))
     finish()
   }
 
@@ -280,8 +298,24 @@ class UserProfileActivity : BaseActivity(), View.OnClickListener {
       userHashMap[Constants.IMAGE] = _userProfileImageUrl
     }
 
-    userHashMap[Constants.MOBILE] = mobileNumber.toLong()
-    userHashMap[Constants.GENDER] = gender
+    val firstName = _binding.etFirstName.text.toString().trim { it <= ' ' }
+    if (firstName != _userDetails.firstName) {
+      userHashMap[Constants.FIRST_NAME] = firstName
+    }
+
+    val lastName = _binding.etLastName.text.toString().trim { it <= ' ' }
+    if (lastName != _userDetails.lastName) {
+      userHashMap[Constants.LAST_NAME] = lastName
+    }
+
+    if (mobileNumber != _userDetails.mobile.toString()) {
+      userHashMap[Constants.MOBILE] = mobileNumber.toLong()
+    }
+
+    if (gender != _userDetails.gender) {
+      userHashMap[Constants.GENDER] = gender
+    }
+
     userHashMap[Constants.PROFILE_COMPLETED] = 1
 
     _fireStoreService.updateUserDetails(this, userHashMap)
@@ -300,5 +334,25 @@ class UserProfileActivity : BaseActivity(), View.OnClickListener {
     hideLoadingProgressDialog()
 
     displaySnackBar("Error uploading image", true)
+  }
+
+  private fun setupActionBar() {
+    setSupportActionBar(_binding.toolbarUserProfile)
+
+    // change the colour of our vector asset on runtime
+    val drawable = ContextCompat.getDrawable(this, R.drawable.ic_baseline_arrow_back_ios_new_24)
+    val wrappedDrawable = DrawableCompat.wrap(drawable!!)
+    DrawableCompat.setTint(wrappedDrawable, ContextCompat.getColor(this, R.color.app_white))
+
+    // set the back button in the action bar
+    val actionBar = supportActionBar
+    if (actionBar != null) {
+      actionBar.setDisplayHomeAsUpEnabled(true)
+      actionBar.setHomeAsUpIndicator(drawable)
+    }
+
+    // set the navigation action to onBackPressed
+    // same functionality as the back button of the device
+    _binding.toolbarUserProfile.setNavigationOnClickListener { onBackPressed() }
   }
 }

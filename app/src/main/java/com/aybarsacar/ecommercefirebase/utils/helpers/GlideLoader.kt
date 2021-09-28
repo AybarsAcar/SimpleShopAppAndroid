@@ -2,7 +2,6 @@ package com.aybarsacar.ecommercefirebase.utils.helpers
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.net.Uri
 import android.widget.ImageView
 import com.aybarsacar.ecommercefirebase.R
 import com.bumptech.glide.Glide
@@ -10,12 +9,12 @@ import java.io.IOException
 
 class GlideLoader(val context: Context) {
 
-  fun loadUserImageAsUri(imageUri: Uri, imageView: ImageView) {
+  fun loadUserImageAsUri(image: Any, imageView: ImageView) {
 
     try {
       Glide
         .with(context)
-        .load(imageUri)
+        .load(image)
         .centerCrop()
         .placeholder(R.drawable.default_avatar)
         .into(imageView)

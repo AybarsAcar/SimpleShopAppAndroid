@@ -1,6 +1,8 @@
 package com.aybarsacar.ecommercefirebase.ui.activities
 
 import android.app.Dialog
+import android.os.Handler
+import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.aybarsacar.ecommercefirebase.R
@@ -16,6 +18,9 @@ open class BaseActivity : AppCompatActivity() {
 
   private lateinit var _progressDialog: Dialog
 
+  private var _doubleBackToExitPressedOnce = false
+
+
   protected fun displaySnackBar(message: String, errorMessage: Boolean) {
 
     val snackBar = Snackbar.make(findViewById(android.R.id.content), message, Snackbar.LENGTH_LONG)
@@ -30,6 +35,18 @@ open class BaseActivity : AppCompatActivity() {
         ContextCompat.getColor(this@BaseActivity, R.color.green_success)
       )
     }
+
+    snackBar.show()
+  }
+
+  protected fun displayInfoSnackBar(message: String) {
+
+    val snackBar = Snackbar.make(findViewById(android.R.id.content), message, Snackbar.LENGTH_SHORT)
+    val snackBarView = snackBar.view
+
+    snackBarView.setBackgroundColor(
+      ContextCompat.getColor(this@BaseActivity, R.color.primary_light)
+    )
 
     snackBar.show()
   }
@@ -56,5 +73,24 @@ open class BaseActivity : AppCompatActivity() {
 
   fun hideLoadingProgressDialog() {
     _progressDialog.dismiss()
+  }
+
+
+  protected fun handleDoubleBackToExit() {
+    if (_doubleBackToExitPressedOnce) {
+      super.onBackPressed()
+      return
+    }
+
+    _doubleBackToExitPressedOnce = true
+
+//    Toast.makeText(this, resources.getString(R.string.please_click_back_again_to_exit), Toast.LENGTH_SHORT).show()
+    displayInfoSnackBar(resources.getString(R.string.please_click_back_again_to_exit))
+
+    // reset back to false after 2 seconds
+    Handler(Looper.getMainLooper()).postDelayed({
+      _doubleBackToExitPressedOnce = false
+    }, 2000)
+
   }
 }
