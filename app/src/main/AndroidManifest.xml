@@ -19,7 +19,11 @@
         android:theme="@style/Theme.ECommerceFirebase">
         <activity
             android:name=".ui.activities.AddProductActivity"
-            android:exported="true" />
+            android:exported="true"
+            android:screenOrientation="fullSensor"
+            android:theme="@style/Theme.ECommerceFirebase.NoActionBar" />
+
+
         <activity
             android:name=".ui.activities.SettingsActivity"
             android:exported="true"

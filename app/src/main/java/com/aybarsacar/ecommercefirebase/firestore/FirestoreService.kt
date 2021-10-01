@@ -6,10 +6,7 @@ import android.content.SharedPreferences
 import android.net.Uri
 import android.util.Log
 import com.aybarsacar.ecommercefirebase.models.User
-import com.aybarsacar.ecommercefirebase.ui.activities.LoginActivity
-import com.aybarsacar.ecommercefirebase.ui.activities.RegisterActivity
-import com.aybarsacar.ecommercefirebase.ui.activities.SettingsActivity
-import com.aybarsacar.ecommercefirebase.ui.activities.UserProfileActivity
+import com.aybarsacar.ecommercefirebase.ui.activities.*
 import com.aybarsacar.ecommercefirebase.utils.helpers.Constants
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -140,12 +137,21 @@ class FirestoreService {
   /**
    * uploads the image to the FirebaseStorage
    * user profile image is saved with the name of their id
+   * imageType: constant of Profile_Image / Product_Image
    */
-  fun uploadProfileImageToCloudStorage(activity: Activity, imageFileUri: Uri?) {
+  fun uploadImageToCloudStorage(activity: Activity, imageFileUri: Uri?, imageType: String) {
+
+    var imageIdentifier: String = ""
+    if (imageType == Constants.PRODUCT_IMAGE) {
+      imageIdentifier = System.currentTimeMillis().toString()
+    } else if (imageType == Constants.USER_PROFILE_IMAGE) {
+      // we allow each user to have a single photo
+      imageIdentifier = getCurrentUserId()
+    }
 
     val sRef: StorageReference = FirebaseStorage.getInstance().reference.child(
       // each user is allowed to have a single Profile Image
-      Constants.USER_PROFILE_IMAGE + getCurrentUserId() + "." + Constants.getFileExtension(
+      imageType + imageIdentifier + "." + Constants.getFileExtension(
         activity,
         imageFileUri
       )
@@ -165,6 +171,10 @@ class FirestoreService {
               is UserProfileActivity -> {
                 activity.onImageUploadSuccess(it.toString())
               }
+
+              is AddProductActivity -> {
+                activity.onImageUploadSuccess(it.toString())
+              }
             }
           }
 
@@ -172,6 +182,10 @@ class FirestoreService {
 
         when (activity) {
           is UserProfileActivity -> {
+            activity.onImageUploadFailure()
+          }
+
+          is AddProductActivity -> {
             activity.onImageUploadFailure()
           }
         }

@@ -270,7 +270,7 @@ class UserProfileActivity : BaseActivity(), View.OnClickListener {
             displayLoadingProgressDialog()
 
             if (_selectedImageUri != null) {
-              _fireStoreService.uploadProfileImageToCloudStorage(this, _selectedImageUri)
+              _fireStoreService.uploadImageToCloudStorage(this, _selectedImageUri, Constants.USER_PROFILE_IMAGE)
             } else {
               updateUserProfileDetails()
             }

@@ -23,7 +23,7 @@
 
     <color name="app_grey_light">#8CA1A5</color>
     <color name="app_grey_dark">#393E46</color>
-    <color name="app_gey_extra_light">#F1F1F1</color>
+    <color name="app_grey_extra_light">#F1F1F1</color>
 
 
     <color name="red_error">#B42B51</color>

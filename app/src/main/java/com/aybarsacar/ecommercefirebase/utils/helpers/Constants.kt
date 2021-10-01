@@ -28,6 +28,8 @@ object Constants {
 
   const val USER_PROFILE_IMAGE = "User_Profile_Image"
 
+  const val PRODUCT_IMAGE = "Product_Image"
+
 
   /**
    * returns the file extension of the image uri
