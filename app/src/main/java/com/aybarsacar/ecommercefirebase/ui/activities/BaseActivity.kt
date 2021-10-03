@@ -21,7 +21,7 @@ open class BaseActivity : AppCompatActivity() {
   private var _doubleBackToExitPressedOnce = false
 
 
-  protected fun displaySnackBar(message: String, errorMessage: Boolean) {
+  fun displaySnackBar(message: String, errorMessage: Boolean) {
 
     val snackBar = Snackbar.make(findViewById(android.R.id.content), message, Snackbar.LENGTH_LONG)
     val snackBarView = snackBar.view

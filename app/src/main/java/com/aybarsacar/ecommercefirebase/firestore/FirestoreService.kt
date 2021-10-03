@@ -440,4 +440,33 @@ class FirestoreService {
         }
       }
   }
+
+
+  /**
+   * itemHashMap is a cart item as a map - like json object
+   */
+  fun updateCart(context: Context, cartId: String, itemHashMap: HashMap<String, Any>) {
+
+    _fireStore.collection(Constants.CART_ITEMS)
+      .document(cartId)
+      .update(itemHashMap)
+      .addOnSuccessListener {
+
+        when (context) {
+          is CartListActivity -> {
+            context.handleCartItemUpdatedSuccess()
+          }
+        }
+
+      }
+      .addOnFailureListener {
+        Log.e(context.javaClass.simpleName, "Error getting the product details", it)
+
+        when (context) {
+          is CartListActivity -> {
+            context.hideLoadingProgressDialog()
+          }
+        }
+      }
+  }
 }

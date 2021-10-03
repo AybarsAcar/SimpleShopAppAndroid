@@ -11,6 +11,7 @@ import com.aybarsacar.ecommercefirebase.databinding.ItemCartLayoutBinding
 import com.aybarsacar.ecommercefirebase.firestore.FirestoreService
 import com.aybarsacar.ecommercefirebase.models.CartItem
 import com.aybarsacar.ecommercefirebase.ui.activities.CartListActivity
+import com.aybarsacar.ecommercefirebase.utils.helpers.Constants
 import com.aybarsacar.ecommercefirebase.utils.helpers.GlideLoader
 
 
@@ -58,10 +59,47 @@ class CartItemsListAdapter(private val context: Context, private val cartItems: 
 
       holder.binding.ibAddCartItem.setOnClickListener {
 
+        val cartQuantity = cartItem.cartQuantity.toInt()
+
+        if (cartQuantity < cartItem.stockQuantity.toInt()) {
+
+          val itemHashMap = HashMap<String, Any>()
+
+          itemHashMap[Constants.CART_QUANTITY] = (cartQuantity + 1).toString()
+
+          if (context is CartListActivity) {
+            context.displayLoadingProgressDialog()
+          }
+
+          FirestoreService().updateCart(context, cartItem.id, itemHashMap)
+
+        } else {
+
+          if (context is CartListActivity) {
+            context.displaySnackBar(
+              "Available stock is ${cartItem.stockQuantity.toInt()}. You cannot add more than the available stock",
+              true
+            )
+          }
+        }
       }
 
       holder.binding.ibRemoveCartItem.setOnClickListener {
+        // decrease the amount of items in the cart item
+        if (cartItem.cartQuantity == "1") {
+          FirestoreService().deleteItemFromCart(context, cartItem.id)
+        } else {
+          val cartQuantity = cartItem.cartQuantity.toInt()
+          val itemHashMap = HashMap<String, Any>()
 
+          itemHashMap[Constants.CART_QUANTITY] = (cartQuantity - 1).toString()
+
+          if (context is CartListActivity) {
+            context.displayLoadingProgressDialog()
+          }
+
+          FirestoreService().updateCart(context, cartItem.id, itemHashMap)
+        }
       }
 
       holder.binding.ibDeleteCartItem.setOnClickListener {

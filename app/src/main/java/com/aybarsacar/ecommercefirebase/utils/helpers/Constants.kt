@@ -7,6 +7,8 @@ import android.webkit.MimeTypeMap
 
 object Constants {
 
+  const val CART_QUANTITY: String = "cartQuantity"
+
   // fire store cloud collections
   const val USERS: String = "users"
   const val PRODUCTS = "products"
