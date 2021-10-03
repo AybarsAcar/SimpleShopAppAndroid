@@ -52,7 +52,7 @@ open class BaseActivity : AppCompatActivity() {
   }
 
 
-  protected fun displayLoadingProgressDialog(message: String = resources.getString(R.string.please_wait)) {
+  fun displayLoadingProgressDialog(message: String = resources.getString(R.string.please_wait)) {
 
     val dialogBinding = DialogProgressBinding.inflate(layoutInflater)
 

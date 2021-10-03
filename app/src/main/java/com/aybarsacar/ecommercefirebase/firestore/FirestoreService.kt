@@ -5,8 +5,13 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.net.Uri
 import android.util.Log
+import androidx.fragment.app.Fragment
+import com.aybarsacar.ecommercefirebase.models.CartItem
+import com.aybarsacar.ecommercefirebase.models.Product
 import com.aybarsacar.ecommercefirebase.models.User
 import com.aybarsacar.ecommercefirebase.ui.activities.*
+import com.aybarsacar.ecommercefirebase.ui.fragments.DashboardFragment
+import com.aybarsacar.ecommercefirebase.ui.fragments.ProductsFragment
 import com.aybarsacar.ecommercefirebase.utils.helpers.Constants
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -38,6 +43,27 @@ class FirestoreService {
       .addOnFailureListener {
 
         activity.hideLoadingProgressDialog()
+        Log.e(activity.javaClass.simpleName, "Error while registering user", it)
+
+      }
+  }
+
+
+  fun uploadProductDetails(activity: AddProductActivity, product: Product) {
+
+    // the users is the collection name
+    // if the collection is not created Firestore creates a collection with this name
+    _fireStore.collection(Constants.PRODUCTS)
+      .document()
+      .set(product, SetOptions.merge())
+      .addOnSuccessListener {
+
+        activity.onProductUploadSuccess()
+
+      }
+      .addOnFailureListener {
+
+        activity.onProductUploadFailure()
         Log.e(activity.javaClass.simpleName, "Error while registering user", it)
 
       }
@@ -192,6 +218,226 @@ class FirestoreService {
 
         Log.e(activity.javaClass.simpleName, it.message, it)
 
+      }
+  }
+
+  /**
+   * returns a list of products created by the currently logged in user
+   */
+  fun getProductList(fragment: Fragment) {
+    _fireStore.collection(Constants.PRODUCTS)
+      .whereEqualTo(Constants.USER_ID, getCurrentUserId())
+      .get()
+      .addOnSuccessListener {
+
+        val products = ArrayList<Product>()
+
+        for (productInfo in it.documents) {
+          // cast to a product
+          val product = productInfo.toObject(Product::class.java)
+
+          product!!.id = productInfo.id
+
+          products.add(product)
+        }
+
+        when (fragment) {
+
+          is ProductsFragment -> {
+            fragment.handleGetProductListSuccess(products)
+          }
+
+        }
+      }
+  }
+
+
+  /**
+   * dashboards gets all the products
+   */
+  fun getDashboardItemsList(fragment: DashboardFragment) {
+
+    _fireStore.collection(Constants.PRODUCTS)
+      .get()
+      .addOnSuccessListener {
+
+        val products = ArrayList<Product>()
+
+        for (productInfo in it.documents) {
+          // cast to a product
+          val product = productInfo.toObject(Product::class.java)
+
+          product!!.id = productInfo.id
+
+          products.add(product)
+
+          // call an onSuccess on the fragment
+          fragment.handleGetDashboardItemsListSuccess(products)
+        }
+      }
+      .addOnFailureListener {
+        // call an onFailure method on the fragment
+        fragment.handleGetDashboardItemsListFailure()
+        Log.e(fragment.javaClass.simpleName, "Error while loading dashboard items", it)
+      }
+  }
+
+
+  /**
+   * deletes the product given an id
+   */
+  fun deleteProduct(fragment: ProductsFragment, productId: String) {
+
+    _fireStore.collection(Constants.PRODUCTS)
+      .document(productId)
+      .delete()
+      .addOnSuccessListener {
+
+        fragment.handleProductDeleteSuccess()
+
+      }
+      .addOnFailureListener {
+        fragment.handleProductDeleteFailure()
+      }
+  }
+
+
+  /**
+   * fetches the product details based on the id
+   */
+  fun getProductDetails(activity: ProductDetailsActivity, productId: String) {
+
+    _fireStore.collection(Constants.PRODUCTS)
+      .document(productId)
+      .get()
+      .addOnSuccessListener {
+        val product = it.toObject(Product::class.java)
+
+        activity.handleProductDetailsSuccess(product!!)
+      }
+      .addOnFailureListener {
+        Log.e(activity.javaClass.simpleName, "Error getting the product details", it)
+        activity.handleProductDetailsFailure()
+      }
+  }
+
+
+  fun addCartItems(activity: ProductDetailsActivity, itemToAdd: CartItem) {
+    _fireStore.collection(Constants.CART_ITEMS)
+      .document()
+      .set(itemToAdd, SetOptions.merge())
+      .addOnSuccessListener {
+        activity.handleAddCartItemsSuccess()
+      }
+      .addOnFailureListener {
+        Log.e(activity.javaClass.simpleName, "Error getting the product details", it)
+        activity.handleAddCartItemsFailure()
+      }
+  }
+
+
+  fun itemExists(activity: ProductDetailsActivity, productId: String) {
+    _fireStore.collection(Constants.CART_ITEMS)
+      .whereEqualTo(Constants.USER_ID, getCurrentUserId())
+      .whereEqualTo(Constants.PRODUCT_ID, productId)
+      .get()
+      .addOnSuccessListener {
+        if (it.documents.size > 0) {
+          activity.handleItemExistsSuccess()
+        } else {
+          activity.hideLoadingProgressDialog()
+        }
+      }
+      .addOnFailureListener {
+        Log.e(activity.javaClass.simpleName, "Error getting the product details", it)
+        activity.hideLoadingProgressDialog()
+      }
+  }
+
+
+  /**
+   * returns the list of cart items for the currently logged in user
+   */
+  fun getCartItemsList(activity: Activity) {
+    _fireStore.collection(Constants.CART_ITEMS)
+      .whereEqualTo(Constants.USER_ID, getCurrentUserId())
+      .get()
+      .addOnSuccessListener {
+
+        val cartItems = ArrayList<CartItem>()
+
+        for (item in it.documents) {
+          val cartItem = item.toObject(CartItem::class.java)!!
+
+          cartItem.id = item.id
+
+          cartItems.add(cartItem)
+        }
+
+        when (activity) {
+          is CartListActivity -> {
+            activity.handleSuccessCartItemsList(cartItems)
+          }
+        }
+
+      }
+      .addOnFailureListener {
+        Log.e(activity.javaClass.simpleName, "Error getting the product details", it)
+
+        when (activity) {
+          is CartListActivity -> {
+            activity.hideLoadingProgressDialog()
+          }
+        }
+      }
+  }
+
+
+  fun getAllProductsList(activity: CartListActivity) {
+    _fireStore.collection(Constants.PRODUCTS)
+      .get()
+      .addOnSuccessListener {
+
+        val products = ArrayList<Product>()
+
+        for (item in it.documents) {
+          val product = item.toObject(Product::class.java)!!
+          product.id = item.id
+
+          products.add(product)
+        }
+
+        activity.handleGetAllProductsListSuccess(products)
+      }
+      .addOnFailureListener {
+        Log.e(activity.javaClass.simpleName, "Error getting the product details", it)
+        activity.hideLoadingProgressDialog()
+      }
+  }
+
+
+  fun deleteItemFromCart(context: Context, cartId: String) {
+
+    _fireStore.collection(Constants.CART_ITEMS)
+      .document(cartId)
+      .delete()
+      .addOnSuccessListener {
+
+        when (context) {
+          is CartListActivity -> {
+            context.handleCartItemDeletedSuccess()
+          }
+        }
+
+      }
+      .addOnFailureListener {
+        Log.e(context.javaClass.simpleName, "Error getting the product details", it)
+
+        when (context) {
+          is CartListActivity -> {
+            context.hideLoadingProgressDialog()
+          }
+        }
       }
   }
 }

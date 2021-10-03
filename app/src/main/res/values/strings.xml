@@ -40,5 +40,24 @@
     <string name="lbl_addresses">Addresses</string>
     <string name="btn_lbl_logout">Logout</string>
 
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+
+    <string name="title_product_details">PRODUCT DETAILS</string>
+    <string name="title_product_description">Product Description</string>
+    <string name="title_product_details_stock_quantity">Stock Quantity</string>
+
+
+    <string name="title_my_cart">MY CART</string>
+    <string name="no_cart_item_found">No item found in cart!</string>
+    <string name="lbl_subtotal">Subtotal</string>
+    <string name="lbl_shipping_charge">Shipping Charge</string>
+    <string name="lbl_total_amount">Total Amount</string>
+    <string name="btn_lbl_checkout">Checkout</string>
+    <string name="action_cart">My Cart</string>
+
+    <dimen name="rv_cart_items_marginTop">16dp</dimen>
+    <dimen name="ll_checkout_padding">16dp</dimen>
+    <dimen name="checkout_label_value_textSize">18sp</dimen>
 
 </resources>

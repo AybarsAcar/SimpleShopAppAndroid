@@ -6,6 +6,7 @@ import android.app.AlertDialog
 import android.app.Dialog
 import android.content.ActivityNotFoundException
 import android.content.ContentValues
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -26,6 +27,7 @@ import com.aybarsacar.ecommercefirebase.R
 import com.aybarsacar.ecommercefirebase.databinding.ActivityAddProductBinding
 import com.aybarsacar.ecommercefirebase.databinding.DialogCustomImageSelectionBinding
 import com.aybarsacar.ecommercefirebase.firestore.FirestoreService
+import com.aybarsacar.ecommercefirebase.models.Product
 import com.aybarsacar.ecommercefirebase.utils.helpers.Constants
 import com.aybarsacar.ecommercefirebase.utils.helpers.GlideLoader
 import java.io.File
@@ -266,9 +268,49 @@ class AddProductActivity : BaseActivity(), View.OnClickListener {
     // cache the url from the firebase in the class which will be saved on submit
     _productImageUrl = imageUrl
 
-    hideLoadingProgressDialog()
-    // then create the product
+    // then create and upload the product
+    uploadProductDetails()
   }
+
+
+  /**
+   * uploads the product to the firebase store
+   */
+  private fun uploadProductDetails() {
+    val username = getSharedPreferences(Constants.MY_SHOP_PREFERENCES, Context.MODE_PRIVATE).getString(
+      Constants.LOGGED_IN_USERNAME,
+      ""
+    )!!
+
+    val product = Product(
+      _fireStore.getCurrentUserId(),
+      username,
+      _binding.etProductTitle.text.toString().trim { it <= ' ' },
+      _binding.etProductPrice.text.toString().trim { it <= ' ' },
+      _binding.etProductDescription.text.toString().trim { it <= ' ' },
+      _binding.etProductQuantity.text.toString().trim { it <= ' ' },
+      _productImageUrl,
+    )
+
+    _fireStore.uploadProductDetails(this@AddProductActivity, product)
+  }
+
+
+  fun onProductUploadSuccess() {
+    hideLoadingProgressDialog()
+    displaySnackBar("Product is uploaded successfully", false)
+
+    // close the current activity - pushes the user back to the main dashboard
+    // finish removes the activity off the stack
+    finish()
+  }
+
+
+  fun onProductUploadFailure() {
+    hideLoadingProgressDialog()
+    displaySnackBar("Error uploading product", true)
+  }
+
 
   fun onImageUploadFailure() {
     hideLoadingProgressDialog()
